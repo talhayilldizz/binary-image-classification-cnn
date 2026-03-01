@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 import matplotlib.pyplot as plt
 
 class CatDogClassifier:
@@ -16,32 +16,55 @@ class CatDogClassifier:
         self.model = None
 
     def build_model(self):
-        self.model = Sequential([
-            Conv2D(32, (3,3), activation='relu', input_shape=(self.IMG_SIZE, self.IMG_SIZE, 3)),
-            MaxPooling2D(pool_size=(2,2)),
+        self.model = Sequential()
 
-            Conv2D(64, (3,3), activation='relu'),
-            MaxPooling2D(pool_size=(2,2)),
+        self.model.add(
+            Conv2D(
+                32, (3,3),
+                activation='relu',
+                input_shape = (128,128,3)
+            )
+        )
+        self.model.add(MaxPooling2D(pool_size=(2,2)))
 
-            Conv2D(128, (3,3), activation='relu'),
-            MaxPooling2D(pool_size=(2,2)),
+        self.model.add(
+            Conv2D(
+                64, (3,3),
+                activation='relu'
+            )
+        )
+        self.model.add(MaxPooling2D(pool_size=(2,2)))
 
-            Flatten(), 
-            Dense(128, activation='relu'), 
-            Dense(1, activation='sigmoid')
-        ])
+        self.model.add(
+            Conv2D(
+                128,(3,3),
+                activation='relu'
+            )
+        )
+        self.model.add(MaxPooling2D(pool_size=(2,2)))
+
+        self.model.add(Flatten())
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(128, activation='relu'))
+        self.model.add(Dense(1,activation='sigmoid'))
 
         self.model.compile(
-            optimizer= 'adam',
+            optimizer = "adam",
             loss = 'binary_crossentropy',
-            metrics=['accuracy']
+            metrics = ['accuracy']
         )
+
 
     def train(self, epochs=5):
         train_dir = os.path.join(self.BASE_DIR, "data", "training_set")
         test_dir = os.path.join(self.BASE_DIR, "data", "test_set")
 
-        datagen = ImageDataGenerator(rescale=1./255)
+        datagen = ImageDataGenerator(
+            rescale=1./255,
+            rotation_range=20,
+            zoom_range = 0.2,
+            horizontal_flip = True
+        )
         
         train_data = datagen.flow_from_directory(
             train_dir, target_size=(self.IMG_SIZE, self.IMG_SIZE),
