@@ -32,7 +32,7 @@ else:
 
 
 plt.imshow(original_img)
-plt.title(f"Tahmin: {class_name}\nGüven Skoru: %{confidence_score:.2f}")
+plt.title(f"Tahmin: {class_name}\nTahmin Skoru: %{confidence_score:.2f}")
 plt.axis('off')
 plt.show()
 
